@@ -34,7 +34,7 @@ def read_xywhi():
         ################################################################################################################
         file_train = open('boat_train.txt', 'w')
         file_valid = open('boat_valid.txt', 'w')
-        file_test = open('boat_boat.txt', 'w')
+        file_test = open('boat_test.txt', 'w')
         for img in range(number_image):
             image_name = '0000000.ppm'
             c = list(image_name)
