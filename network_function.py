@@ -137,7 +137,7 @@ class YOLOv3(object):
                 conv_56 = conv2d(conv_55, 56, name="conv_56")
                 conv_57 = conv2d(conv_56, 57, name="conv_57")
                 conv_58 = conv2d(conv_57, 58, name="conv_58")  # [None,13 ,13,1024]
-                conv_59 = conv2d(conv_58, 59, name="conv_59", batch_norm_and_activation=False)
+                conv_59 = conv2d(conv_58, 59, name="conv_59", batch_norm_and_activation=False, trainable=True)
                 # [yolo layer] 6,7,8 # 82  --->predict    scale:1, stride:32, detecting large objects => mask: 6,7,8
                 # 13x13x255, 255=3*(80+1+4)
             with tf.name_scope('scale_2'):
@@ -151,7 +151,7 @@ class YOLOv3(object):
                 conv_64 = conv2d(conv_63, 64, name="conv_64")
                 conv_65 = conv2d(conv_64, 65, name="conv_65")
                 conv_66 = conv2d(conv_65, 66, name="conv_66")
-                conv_67 = conv2d(conv_66, 67, name="conv_67", batch_norm_and_activation=False)
+                conv_67 = conv2d(conv_66, 67, name="conv_67", batch_norm_and_activation=False, trainable=True)
                 # [yolo layer] 3,4,5 # 94  --->predict   scale:2, stride:16, detecting medium objects => mask: 3,4,5
                 # 26x26x255, 255=3*(80+1+4)
             with tf.name_scope('scale_3'):
@@ -165,7 +165,7 @@ class YOLOv3(object):
                 conv_72 = conv2d(conv_71, 72, name="conv_72")
                 conv_73 = conv2d(conv_72, 73, name="conv_73")
                 conv_74 = conv2d(conv_73, 74, name="conv_74")
-                conv_75 = conv2d(conv_74, 75, name="conv_75", batch_norm_and_activation=False)
+                conv_75 = conv2d(conv_74, 75, name="conv_75", batch_norm_and_activation=False, trainable=True)
                 # [yolo layer] 0,1,2 # 106 --predict scale:3, stride:8, detecting the smaller objects => mask: 0,1,2
                 # 52x52x255, 255=3*(80+1+4)
                 # Bounding Box:  YOLOv2: 13x13x5
@@ -186,7 +186,7 @@ def conv2d(inputs, idx, name, stride=1, batch_norm_and_activation=True):
     :return:
     """
     with tf.variable_scope(name):
-        weights = tf.Variable(W(idx), dtype=tf.float32, name="weights")
+        weights = tf.Variable(W(idx), trainable=trainable, dtype=tf.float32, name="weights")
         tf.summary.histogram("weights", weights)  # add summary
         if stride == 2:
             paddings = tf.constant([[0, 0], [1, 0], [1, 0], [0, 0]])
@@ -200,16 +200,16 @@ def conv2d(inputs, idx, name, stride=1, batch_norm_and_activation=True):
             with tf.variable_scope('BatchNorm'):
                 variance_epsilon = tf.constant(0.001, name="epsilon")  # A small float number to avoid dividing by 0
                 moving_mean, moving_variance, beta, gamma = B(idx)
-                moving_mean = tf.Variable(moving_mean, dtype=tf.float32, name="moving_mean")
+                moving_mean = tf.Variable(moving_mean, trainable=trainable, dtype=tf.float32, name="moving_mean")
                 tf.summary.histogram("moving_mean", moving_mean)  # add summary
 
-                moving_variance = tf.Variable(moving_variance, dtype=tf.float32, name="moving_variance")
+                moving_variance = tf.Variable(moving_variance, trainable=trainable, dtype=tf.float32, name="moving_variance")
                 tf.summary.histogram("moving_variance", moving_variance)  # add summary
 
-                beta = tf.Variable(beta, dtype=tf.float32, name="beta")
+                beta = tf.Variable(beta, trainable=trainable, dtype=tf.float32, name="beta")
                 tf.summary.histogram("beta", beta)  # add summary
 
-                gamma = tf.Variable(gamma, dtype=tf.float32, name="gamma")
+                gamma = tf.Variable(gamma, trainable=trainable, dtype=tf.float32, name="gamma")
                 tf.summary.histogram("gamma", gamma)  # add summary
 
                 conv = tf.nn.batch_normalization(conv, moving_mean, moving_variance, beta, gamma, variance_epsilon, name='BatchNorm')
@@ -219,7 +219,7 @@ def conv2d(inputs, idx, name, stride=1, batch_norm_and_activation=True):
             return acti
         else:
             # for conv_59, conv67, conv_75
-            biases = tf.Variable(B(idx), dtype=tf.float32, name="biases")
+            biases = tf.Variable(B(idx), trainable=trainable, dtype=tf.float32, name="biases")
             tf.summary.histogram("biases", biases)  # add summary
             conv = tf.add(conv, biases)
             return conv
