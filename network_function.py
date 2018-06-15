@@ -280,35 +280,3 @@ def upsample(inputs, size, name):
         h = tf.shape(inputs)[2]  # 416
         output = tf.image.resize_nearest_neighbor(inputs, [size * w, size * h])
         return output
-
-"""
-def conv2d(inputs, idx, channels, filters, size, stride, name, batch_norm_and_activation=True):
-    with tf.variable_scope(name):
-        weights = tf.Variable(tf.truncated_normal([size, size, channels, filters], stddev=0.1), name='weights')
-        if stride == 2:
-            paddings = tf.constant([[0, 0], [1, 0], [1, 0], [0, 0]])
-            inputs_pad = tf.pad(inputs, paddings, "CONSTANT")
-            conv = tf.nn.conv2d(inputs_pad, weights, strides=[1, stride, stride, 1], padding='VALID', name="nn_conv")
-        else:
-            conv = tf.nn.conv2d(inputs, weights, strides=[1, stride, stride, 1], padding='SAME', name="conv")
-        if batch_norm_and_activation:
-            # conv_1 ---> conv_75 EXCEPT conv_59, conv_67, conv_75
-            with tf.variable_scope('BatchNorm'):
-                betas = tf.Variable(tf.ones([filters, ], dtype='float32'), name='beta')  # offset
-                shift = tf.Variable(tf.zeros([filters, ], dtype='float32'), name='shift')  # gamma or scale
-                mean = tf.Variable(tf.ones([filters, ], dtype='float32'), name='moving_mean')
-                variance = tf.Variable(tf.ones([filters, ], dtype='float32'), name='moving_variance')
-                variance_epsilon = 1e-03  # A small float number to avoid dividing by 0
-                conv = tf.nn.batch_normalization(conv, mean, variance, shift,betas,variance_epsilon, name='BatchNorm')
-                # moving_mean, moving_variance, beta, gamma = B(idx)
-                # conv = tf.nn.batch_normalization(conv, moving_mean, moving_variance,  gamma, beta, variance_epsilon, name='BatchNorm')
-            with tf.name_scope('Activation'):
-                alpha = 0.1  # Slope of the activation function at x < 0
-                return tf.maximum(alpha * conv, conv)
-        else:
-            # for conv_59, conv67, conv_75
-            biases = tf.Variable(tf.constant(0.1, shape=[filters]), name='biases')
-            # biases = B(idx)
-            conv = tf.add(conv, biases)
-            return conv
-"""
