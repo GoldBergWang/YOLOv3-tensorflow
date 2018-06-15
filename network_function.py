@@ -175,7 +175,7 @@ class YOLOv3(object):
 
 
 # C'est Bon
-def conv2d(inputs, idx, name, stride=1, batch_norm_and_activation=True):
+def conv2d(inputs, idx, name, stride=1, batch_norm_and_activation=True, trainable=False):
     """
     Convolutional layer
     :param inputs:
